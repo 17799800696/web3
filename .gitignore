@@ -1,0 +1,9 @@
+# Go项目通用忽略规则
+bin/
+pkg/
+*.exe
+*.dll
+*.so
+*.dylib
+.idea/
+.vscode/
