@@ -1,23 +1,14 @@
 package Chapter1
 
-import "fmt"
-
-
-func removeDuplicates(nums []int) int {
-	if len(nums) == 0 {
-		return 0
+func Task2(x int) bool {
+	if x < 0 {
+		return false
 	}
-	k := 1
-	for i := 1; i < len(nums); i++ {
-		if nums[i] != nums[k-1] {
-			nums[k] = nums[i]
-			k++
-		}
+	original := x
+	reversed := 0
+	for x != 0 {
+		reversed = reversed*10 + x%10
+		x /= 10
 	}
-	return k
-}
-
-func Task1() {
-	var num = removeDuplicates([]int{1, 1, 2})
-	fmt.Println(num)
+	return original == reversed
 }
