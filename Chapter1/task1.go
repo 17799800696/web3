@@ -1,6 +1,9 @@
-package Chapter1
+package main
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 func RemoveDuplicates(nums []int) int {
 	if len(nums) == 0 {
@@ -140,4 +143,18 @@ func Task2(x int) bool {
 		x /= 10
 	}
 	return original == reversed
+}
+
+func main() {
+	fmt.Println(RemoveDuplicates([]int{1, 1, 2}))
+	fmt.Println(Task2(121))
+	fmt.Println(IsValid("()"))
+	fmt.Println(IsValid("(]"))
+	fmt.Println(IsValid("([])"))
+	fmt.Println(LongestCommonPrefix([]string{"flower", "flow", "flight"}))
+	fmt.Println(PlusOne([]int{1, 2, 3}))
+	fmt.Println(PlusOne([]int{9, 9, 9}))
+	fmt.Println(PlusOne([]int{9, 6, 9}))
+	fmt.Println(Merge([][]int{{1, 3}, {2, 6}, {8, 10}, {15, 18}}))
+	fmt.Println(TwoSum([]int{2, 7, 11, 15}, 9))	
 }
