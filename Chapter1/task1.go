@@ -151,7 +151,7 @@ func main() {
 	fmt.Println(IsValid("()"))
 	fmt.Println(IsValid("(]"))
 	fmt.Println(IsValid("([])"))
-	fmt.Println(LongestCommonPrefix([]string{"flower", "flow", "flight"}))
+	fmt.Println(LongestCommonPrefix([]string{"flower", "flows", "flight"}))
 	fmt.Println(PlusOne([]int{1, 2, 3}))
 	fmt.Println(PlusOne([]int{9, 9, 9}))
 	fmt.Println(PlusOne([]int{9, 6, 9}))
