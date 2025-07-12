@@ -26,8 +26,8 @@ type Post struct {
 	UserID        uint
 	User          User
 	Comments      []Comment `gorm:"foreignKey:PostID"`
-	CommentCount  int       `gorm:"default:0;check:comment_count >= 0"`                   // 添加约束确保计数不为负数
-	CommentStatus string    `gorm:"default:'有评论';check:comment_status IN ('有评论', '无评论')"` // 添加约束确保状态值有效
+	CommentCount  int       `gorm:"default:0;check:comment_count >= 0"`                   // add constraint to ensure the count is not negative
+	CommentStatus string    `gorm:"default:'有评论';check:comment_status IN ('有评论', '无评论')"` // add constraint to ensure the status is valid
 }
 
 // Comment model definition
@@ -40,9 +40,9 @@ type Comment struct {
 	Post    Post `gorm:"foreignKey:PostID"`
 }
 
-// 更安全的评论创建钩子函数
+// safer comment create hook function
 func (c *Comment) AfterCreate(tx *gorm.DB) error {
-	// 使用原子操作直接增加评论计数，避免竞态条件
+	// use atomic operation to increase the comment count, avoid race condition
 	result := tx.Model(&Post{}).
 		Where("id = ?", c.PostID).
 		UpdateColumn("comment_count", gorm.Expr("comment_count + ?", 1))
@@ -51,12 +51,12 @@ func (c *Comment) AfterCreate(tx *gorm.DB) error {
 		return fmt.Errorf("update post comment count failed: %v", result.Error)
 	}
 
-	// 检查更新的行数，确保Post存在
+	// check the updated rows, ensure the post exists
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("post with id %d not found", c.PostID)
 	}
 
-	// 使用事务级别的查询来检查状态
+	// use transaction level query to check the status
 	var post Post
 	if err := tx.Select("comment_count, comment_status").
 		Where("id = ?", c.PostID).
@@ -64,7 +64,7 @@ func (c *Comment) AfterCreate(tx *gorm.DB) error {
 		return fmt.Errorf("query post failed: %v", err)
 	}
 
-	// 如果评论数变为1，更新状态
+	// if the comment count is 1, update the status
 	if post.CommentCount == 1 && post.CommentStatus != "有评论" {
 		if err := tx.Model(&Post{}).
 			Where("id = ? AND comment_status != ?", c.PostID, "有评论").
@@ -77,9 +77,9 @@ func (c *Comment) AfterCreate(tx *gorm.DB) error {
 	return nil
 }
 
-// 更安全的评论删除钩子函数
+// safer comment delete hook function
 func (c *Comment) AfterDelete(tx *gorm.DB) error {
-	// 使用原子操作直接减少评论计数，避免竞态条件
+	// use atomic operation to reduce the comment count, avoid race condition
 	result := tx.Model(&Post{}).
 		Where("id = ?", c.PostID).
 		UpdateColumn("comment_count", gorm.Expr("comment_count - ?", 1))
@@ -88,12 +88,12 @@ func (c *Comment) AfterDelete(tx *gorm.DB) error {
 		return fmt.Errorf("update post comment count failed: %v", result.Error)
 	}
 
-	// 检查更新的行数，确保Post存在
+	// check the updated rows, ensure the post exists
 	if result.RowsAffected == 0 {
 		return fmt.Errorf("post with id %d not found", c.PostID)
 	}
 
-	// 使用事务级别的查询来检查状态
+	// use transaction level query to check the status
 	var post Post
 	if err := tx.Select("comment_count, comment_status").
 		Where("id = ?", c.PostID).
@@ -101,7 +101,7 @@ func (c *Comment) AfterDelete(tx *gorm.DB) error {
 		return fmt.Errorf("query post failed: %v", err)
 	}
 
-	// 如果评论数变为0，更新状态
+	// if the comment count is 0, update the status
 	if post.CommentCount == 0 && post.CommentStatus != "无评论" {
 		if err := tx.Model(&Post{}).
 			Where("id = ? AND comment_status != ?", c.PostID, "无评论").
@@ -113,14 +113,6 @@ func (c *Comment) AfterDelete(tx *gorm.DB) error {
 
 	return nil
 }
-
-// 替代方案：使用数据库视图来实时计算评论数
-// 这种方法可以避免缓存不一致的问题，但会增加查询开销
-// CREATE VIEW post_with_comment_count AS
-// SELECT p.*, COUNT(c.id) as real_comment_count
-// FROM posts p
-// LEFT JOIN comments c ON p.id = c.post_id
-// GROUP BY p.id;
 
 func printUserPostsWithComments(user User) {
 	fmt.Printf("user %s's posts:\n", user.Name)
