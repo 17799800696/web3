@@ -84,11 +84,11 @@ func initTestData(db *gorm.DB) {
 	log.Println("init test accounts success")
 }
 
-func runTask2() {
-	// 使用全局配置获取数据库连接
+func main() {
+	// use global config to get database connection
 	db := config.GetDB()
 
-	// 自动迁移表结构
+	// auto migrate table structure
 	if err := db.AutoMigrate(&Account{}, &Transaction{}); err != nil {
 		log.Fatal("table structure migration failed:", err)
 	}
